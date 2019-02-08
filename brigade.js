@@ -1,7 +1,9 @@
 const { events, Job, Group } = require("brigadier");
+const { test } = require('./test.js');
 
 events.on("exec", () => {
     console.log('hello world');
+    test.say();
     // var env = {
     //     POSTGRES_DB: 'openmaptiles',
     //     POSTGRES_USER: 'openmaptiles',
