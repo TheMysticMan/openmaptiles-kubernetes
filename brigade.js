@@ -8,17 +8,22 @@ const wikiLocation = shareLocation + "/wikidata";
 
 
 events.on("exec", (e, p) => {
-    var env = {
-        POSTGRES_DB: p.secrets.postgres_db,
-        POSTGRES_USER: p.secrets.postgres_user,
-        POSTGRES_PASSWORD: p.secrets.postgress_password,
-        POSTGRES_HOST: p.secrets.postgress_host,
-        POSTGRES_PORT: p.secrets.postgress_port.toString(),
-        MIN_ZOOM: p.secrets.min_zoom.toString(),
-        MAX_ZOOM: p.secrets.max_zoom.toString(),
-        BBOX: p.secrets.bbox
-    };
-    importAll(e, p, env);
+    try {
+        var env = {
+            POSTGRES_DB: p.secrets.postgres_db,
+            POSTGRES_USER: p.secrets.postgres_user,
+            POSTGRES_PASSWORD: p.secrets.postgress_password,
+            POSTGRES_HOST: p.secrets.postgress_host,
+            POSTGRES_PORT: p.secrets.postgress_port.toString(),
+            MIN_ZOOM: p.secrets.min_zoom.toString(),
+            MAX_ZOOM: p.secrets.max_zoom.toString(),
+            BBOX: p.secrets.bbox
+        };
+        importAll(e, p, env);
+    }
+    catch(e){
+        console.log(e);
+    }
 });
 
 const importAll = (e, p, env) => {
@@ -36,7 +41,7 @@ const importAll = (e, p, env) => {
                                 jobs.importSql(e, p, env)
                                     .then(() => {
                                         jobs.generateVectorTiles(e, p, env)
-                                        .then(() => { jobs.addMetadata(e, p, env) })
+                                            .then(() => { jobs.addMetadata(e, p, env) })
                                     })
                             })
                     })
