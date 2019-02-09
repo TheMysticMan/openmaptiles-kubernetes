@@ -23,20 +23,22 @@ events.on("exec", (e, p) => {
         //     console.log(e);
         // });
 
-        console.log(e);
-        console.log(p);
+        //console.log(e);
+        //console.log(p);
         // generateTiles(e, p, env).catch((e) => {
         //     console.log(e);
         // });
         // jobs.copyMbTiles(e,p, env).catch((e) => console.log(e));
-        jobs.generateTiles(e,p,env).then(jobs.copyMbTiles(e,p,env)).catch((e) => console.log(e));
+        generateTiles(e, p, env)
+            .then(() => { return jobs.copyMbTiles(e, p, env) })
+            .catch((err) => console.log(err));
     }
-    catch (e) {
-        console.log(e);
+    catch (eee) {
+        console.log(err);
     }
 });
 
-const generateTiles = (e,p, env) => {
+const generateTiles = (e, p, env) => {
     return Group.runEach([
         jobs.setupTools(e, p, env),
         jobs.generateVectorTiles(e, p, env),
@@ -195,23 +197,25 @@ const jobs = {
      * Copy tiles to tileserver directory
      */
     copyMbTiles: (e, p, env) => {
-        var getPVJob = new Job('kubectl', 'lachlanevenson/k8s-kubectl');
+        var getPVJob = new Job('kubectl-get-pvc-id', 'lachlanevenson/k8s-kubectl');
+        getPVJob.storage.enabled = true;
         getPVJob.tasks = [
             `kubectl describe pvc brigade-worker-${e.buildID} | sed -n 's/Volume:\s*//gp'`
         ];
         return getPVJob.run().then((result) => {
             const pvId = result.data.trim();
-            const copyJob = new Job('kubectl', 'lachlanevenson/k8s-kubectl');
+            const copyJob = new Job('kubectl-copy-tiles', 'lachlanevenson/k8s-kubectl');
+            copyJob.storage.enabled = true;
             copyJob.env = {
-                PVC_ID = pvId,
-                BUILD_ID = e.buildID
+                PVC_ID: pvId,
+                BUILD_ID: e.buildID
             }
 
             copyJob.tasks = [
                 `/src/copy-tiles/run.sh`
             ];
 
-            return copyJob.run()''
+            return copyJob.run();
         });
     }
 }

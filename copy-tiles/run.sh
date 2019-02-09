@@ -1,4 +1,4 @@
-cat ./copy-tiles.yaml | sed 's/\$PVC_ID/'"$PVC_ID"'/g' | sed 's/\$BUILD_ID/'"$BUILD_ID"'/g' | kubectl create -f -
+cat /src/copy-tiles.yaml | sed 's/\$PVC_ID/'"$PVC_ID"'/g' | sed 's/\$BUILD_ID/'"$BUILD_ID"'/g' | kubectl create -f -
 
 until kubectl describe pod copy-tiles-$BUILD_ID | sed -n 's/Status:\s*//gp' | grep -m 1 "Succeeded"
 do
@@ -7,4 +7,4 @@ done
 
 echo "file copied"
 
-cat ./copy-tiles.yaml | sed 's/\$PVC_ID/'"$PVC_ID"'/g' | sed 's/\$BUILD_ID/'"$BUILD_ID"'/g' | kubectl delete -f -
+cat /src/copy-tiles.yaml | sed 's/\$PVC_ID/'"$PVC_ID"'/g' | sed 's/\$BUILD_ID/'"$BUILD_ID"'/g' | kubectl delete -f -
