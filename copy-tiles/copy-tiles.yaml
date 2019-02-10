@@ -36,10 +36,10 @@ spec:
   containers:
   - name: copy-tiles-$BUILD_ID
     image: alpine
-    #command: [ "/bin/sh", "-c", "--" ]
-    #args: [ "while true; do sleep 30; done;" ]
-    command: [mkdir]
-    args: ["/data/tileserver/tiles.mbtiles", "&&", "cp" "-f", "/data/worker/data/tiles.mbtiles", "/data/tileserver/tiles.mbtiles" ]
+    command: [ "/bin/sh", "-c", "--" ]
+    args: [ "while true; do sleep 30; done;" ]
+    command: ["cp"]
+    args: ["-f", "/data/worker/data/tiles.mbtiles", "/data/tileserver/tiles.mbtiles" ]
     volumeMounts:
     - name: copy-tiles-$BUILD_ID-nfs-volume
       mountPath: /data/worker
