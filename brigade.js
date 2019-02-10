@@ -207,7 +207,7 @@ const jobs = {
         }
 
         copyJob.tasks = [
-            `/src/copy-tiles/run.sh`
+            `sh /src/copy-tiles/run.sh`
         ];
 
         return copyJob.run();
@@ -221,7 +221,7 @@ const jobs = {
         }
 
         deployJob.tasks = [
-            `/src/tileserver/deploy.sh`
+            `sh /src/tileserver/deploy.sh`
         ];
 
         return deployJob.run();
