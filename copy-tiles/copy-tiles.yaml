@@ -1,4 +1,32 @@
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: copy-tiles-tileserver-$BUILD_ID-nfs-volume
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 5Gi
+  nfs:
+    path: /export
+    server: nfs-server-nfs-server-provisioner.default.svc.cluster.local
+  storageClassName: nfs
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: copy-tiles-$BUILD_ID-nfs-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  #volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: nfs
+  volumeName: copy-tiles-tileserver-$BUILD_ID-nfs-volume
+---
+apiVersion: v1
 kind: Pod
 metadata:
   name: copy-tiles-$BUILD_ID
@@ -8,14 +36,26 @@ spec:
   containers:
   - name: copy-tiles-$BUILD_ID
     image: alpine
-    command: [cp]
-    args: ["-f", "/data/$PVC_ID/data/tiles.mbtiles", "/data/tileserver/tiles.mbtiles" ]
+    #command: [ "/bin/sh", "-c", "--" ]
+    #args: [ "while true; do sleep 30; done;" ]
+    command: [mkdir]
+    args: ["/data/tileserver/tiles.mbtiles", "&&", "cp" "-f", "/data/worker/data/tiles.mbtiles", "/data/tileserver/tiles.mbtiles" ]
     volumeMounts:
     - name: copy-tiles-$BUILD_ID-nfs-volume
-      mountPath: /data
-  restartPolicy: Never
+      mountPath: /data/worker
+    - name: tileserver-$BUILD_ID-nfs-volume
+      mountPath: /data/tileserver
+      subPath: tileserver
+  #restartPolicy: Never
   volumes:
   - name: copy-tiles-$BUILD_ID-nfs-volume
-    nfs:
-      server: nfs-server-nfs-server-provisioner.default.svc.cluster.local
-      path: /
+    #nfs:
+    #  server: nfs-server-nfs-server-provisioner.default.svc.cluster.local
+    #  path: /export
+    persistentVolumeClaim:
+      claimName: brigade-worker-$BUILD_ID
+  - name: tileserver-$BUILD_ID-nfs-volume
+    persistentVolumeClaim:
+      claimName: nfs
+      #server: nfs-server-nfs-server-provisioner.default.svc.cluster.local
+      #path: /export
