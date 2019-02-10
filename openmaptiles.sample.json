@@ -1,0 +1,40 @@
+{
+  "metadata": {
+    "name": "",
+    "creationTimestamp": null,
+    "labels": {
+      "app": "brigade",
+      "component": "project",
+      "heritage": "brigade"
+    },
+    "annotations": {
+      "projectName": "openmaptiles"
+    }
+  },
+  "stringData": {
+    "allowHostMounts": "false",
+    "allowPrivilegedJobs": "false",
+    "brigadejsPath": "",
+    "buildStorageSize": "",
+    "cloneURL": "https://github.com/TheMysticMan/openmaptiles-kubernetes.git",
+    "defaultScript": "",
+    "defaultScriptName": "",
+    "genericGatewaySecret": "",
+    "imagePullSecrets": "",
+    "initGitSubmodules": "false",
+    "kubernetes.allowSecretKeyRef": "false",
+    "kubernetes.buildStorageClass": "nfs",
+    "kubernetes.cacheStorageClass": "",
+    "namespace": "default",
+    "repository": "TheMysticMan/openmaptiles-kubernetes",
+    "sharedSecret": "",
+    "sshKey": "",
+    "vcsSidecar": "",
+    "worker.name": "",
+    "worker.pullPolicy": "IfNotPresent",
+    "worker.registry": "",
+    "worker.tag": "",
+    "workerCommand": "yarn -s start"
+  },
+  "type": "brigade.sh/project"
+}
