@@ -30,7 +30,10 @@ events.on("exec", (e, p) => {
         // });
         // jobs.copyMbTiles(e,p, env).catch((e) => console.log(e));
         generateTiles(e, p, env)
-            .then(() => { return jobs.copyMbTiles(e, p, env) })
+            .then(() => {
+                return jobs.copyMbTiles(e, p, env)
+                    .then(() => { return jobs.deployNewVersion(e, p, env) });
+            })
             .catch((err) => console.log(err));
     }
     catch (eee) {
@@ -197,25 +200,30 @@ const jobs = {
      * Copy tiles to tileserver directory
      */
     copyMbTiles: (e, p, env) => {
-        var getPVJob = new Job('kubectl-get-pvc-id', 'lachlanevenson/k8s-kubectl');
-        getPVJob.storage.enabled = true;
-        getPVJob.tasks = [
-            `kubectl describe pvc brigade-worker-${e.buildID} | sed -n 's/Volume:\s*//gp'`
+        const copyJob = new Job('kubectl-copy-tiles', 'lachlanevenson/k8s-kubectl');
+        copyJob.storage.enabled = true;
+        copyJob.env = {
+            BUILD_ID: e.buildID
+        }
+
+        copyJob.tasks = [
+            `/src/copy-tiles/run.sh`
         ];
-        return getPVJob.run().then((result) => {
-            const pvId = result.data.trim();
-            const copyJob = new Job('kubectl-copy-tiles', 'lachlanevenson/k8s-kubectl');
-            copyJob.storage.enabled = true;
-            copyJob.env = {
-                PVC_ID: pvId,
-                BUILD_ID: e.buildID
-            }
 
-            copyJob.tasks = [
-                `/src/copy-tiles/run.sh`
-            ];
+        return copyJob.run();
+    },
 
-            return copyJob.run();
-        });
+    deployNewVersion: (e, p, env) => {
+        const deployJob = new Job('kubectl-deploy-tileserver', 'lachlanevenson/k8s-kubectl');
+        deployJob.storage.enabled = true;
+        deployJob.env = {
+            BUILD_ID: e.buildID
+        }
+
+        deployJob.tasks = [
+            `/src/tileserver/deploy.sh`
+        ];
+
+        return deployJob.run();
     }
 }

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tileserver-$VERSION-deployment
+  labels:
+    app: tileserver
+    version: "$VERSION"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tileserver
+      version: "$VERSION"
+  template:
+    metadata:
+      labels:
+        app: tileserver
+        version: "$VERSION"
+    spec:
+      containers:
+      - name: tileserver-$VERSION
+        image: edolimburg/tileserver-gl-nfs:0.0.2
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: tileserver-$VERSION-volume
+          mountPath: /nfs-share
+          subPath: tileserver
+      volumes:
+      - name: tileserver-$VERSION-volume
+        persistentVolumeClaim:
+          claimName: nfs

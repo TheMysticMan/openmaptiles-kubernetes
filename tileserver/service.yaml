@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: tileserver
+  labels:
+    app: tileserver
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 80
+  selector:
+    # set app to be blue by default
+    app: tileserver
+    version: "$VERSION"
