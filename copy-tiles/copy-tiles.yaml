@@ -8,8 +8,8 @@ spec:
   containers:
   - name: copy-tiles-$BUILD_ID
     image: alpine
-    command: [ "/bin/sh", "-c", "--" ]
-    args: [ "while true; do sleep 30; done;" ]
+    #command: [ "/bin/sh", "-c", "--" ]
+    #args: [ "while true; do sleep 30; done;" ]
     command: ["cp"]
     args: ["-f", "/data/worker/data/tiles.mbtiles", "/data/tileserver/tiles.mbtiles" ]
     volumeMounts:
@@ -17,8 +17,8 @@ spec:
       mountPath: /data/worker
     - name: tileserver-$BUILD_ID-nfs-volume
       mountPath: /data/tileserver
-      subPath: tileserver
-  #restartPolicy: Never
+      #subPath: tileserver
+  restartPolicy: Never
   volumes:
   - name: copy-tiles-$BUILD_ID-nfs-volume
     persistentVolumeClaim:
