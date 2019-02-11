@@ -25,7 +25,6 @@ spec:
         volumeMounts:
         - name: tileserver-$VERSION-volume
           mountPath: /nfs-share
-          subPath: tileserver
       volumes:
       - name: tileserver-$VERSION-volume
         persistentVolumeClaim:
