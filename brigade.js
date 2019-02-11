@@ -30,17 +30,22 @@ events.on("exec", (e, p) => {
         //     console.log(e);
         // });
         // jobs.copyMbTiles(e,p, env).catch((e) => console.log(e));
-        generateTiles(e, p, env)
-            .then(() => {
-                return jobs.copyMbTiles(e, p, env)
-                    .then(() => { return jobs.deployNewVersion(e, p, env) });
-            })
-            .catch((err) => console.log(err));
+        // generateTiles(e, p, env)
+        //     .then(() => {
+        //         return jobs.copyMbTiles(e, p, env)
+        //             .then(() => { return jobs.deployNewVersion(e, p, env) });
+        //     })
+        //     .catch((err) => console.log(err));
+        importAll(e, p, env);
     }
-    catch (eee) {
+    catch (err) {
         console.log(err);
     }
 });
+
+const deploy = (e, p, env) => {
+    importAll().then()
+}
 
 const generateTiles = (e, p, env) => {
     return Group.runEach([
@@ -51,14 +56,18 @@ const generateTiles = (e, p, env) => {
 }
 
 const importAll = (e, p, env) => {
-    return jobs.forcedCleanSql(e, p, env).then(() => {
-        return jobs.setupTools(e, p, env).then(() => {
+    return jobs.setupTools(e, p, env).then(() => {
+        return jobs.forcedCleanSql(e, p, env).then(() => {
             return jobs.importCommon(e, p, env).then(() => {
                 return jobs.importOsm(e, p, env).then(() => {
                     return jobs.importWikiData(e, p, env).then(() => {
                         return jobs.importSql(e, p, env).then(() => {
                             return jobs.generateVectorTiles(e, p, env).then(() => {
-                                return jobs.addMetadata(e, p, env)
+                                return jobs.addMetadata(e, p, env).then(() => {
+                                    return jobs.copyMbTiles(e, p, env).then(() => {
+                                        return jobs.deployNewVersion(e, p, env)
+                                    });
+                                })
                             })
                         })
                     })
@@ -80,7 +89,7 @@ const jobs = {
             `/usr/src/app/psql.sh -c "CREATE EXTENSION hstore; CREATE EXTENSION postgis; CREATE EXTENSION unaccent; CREATE EXTENSION fuzzystrmatch; CREATE EXTENSION osml10n; CREATE EXTENSION pg_stat_statements;"`,
             `/usr/src/app/psql.sh -c "GRANT ALL ON SCHEMA public TO public;COMMENT ON SCHEMA public IS 'standard public schema';"`
         ];
-        return job;
+        return job.run();
     },
 
     /**
@@ -99,7 +108,7 @@ const jobs = {
             "curl http://download.geofabrik.de/europe/netherlands-latest.osm.pbf -o " + dataLocation + "/netherlands.osm.pbf",
             "make"
         ];
-        return makeJob;
+        return makeJob.run();
     },
 
     /**
@@ -119,7 +128,7 @@ const jobs = {
         ibJob.env = env;
 
         var cGroup = new Group([neJob, wJob, llJob, ibJob]);
-        return cGroup;
+        return cGroup.runAll();
     },
 
     /**
@@ -132,13 +141,14 @@ const jobs = {
             "./import_osm.sh > " + shareLocation + '/log.log'
         ];
         ioJob.storage.enabled = true;
+        ioJob.timeout = 21600000;
         ioJob.env = env;
         ioJob.env.IMPORT_DIR = dataLocation;
         ioJob.env.MAPPING_YAML = buildLocation + '/mapping.yaml';
         ioJob.env.IMPOSM_CACHE_DIR = '/cache';
         ioJob.env.DIFF_MODE = 'false';
 
-        return ioJob;
+        return ioJob.run();
     },
 
     /**
@@ -152,7 +162,7 @@ const jobs = {
             "ln -s " + wikiLocation + " /import",
             "import-wikidata"
         ];
-        return wikiJob;
+        return wikiJob.run();
     },
 
     /**
@@ -163,7 +173,7 @@ const jobs = {
         sqlJob.env = env;
         sqlJob.storage.enabled = true;
         sqlJob.env.SQL_DIR = buildLocation;
-        return sqlJob;
+        return sqlJob.run();
     },
 
     /**
@@ -172,12 +182,12 @@ const jobs = {
     generateVectorTiles: (e, p, env) => {
         var gvJob = new Job("generate-vectortiles", "openmaptiles/generate-vectortiles:0.1.1");
         gvJob.env = env;
-        gvJob.timeout = 10800000;
+        gvJob.timeout = 21600000;
         gvJob.storage.enabled = true;
         gvJob.env.EXPORT_DIR = '/tmp';
         gvJob.env.SOURCE_PROJECT_DIR = buildLocation + "/openmaptiles.tm2source"
         gvJob.tasks = ['/usr/src/app/export-local.sh', 'cp /tmp/tiles.mbtiles ' + dataLocation]
-        return gvJob;
+        return gvJob.run();
     },
 
     /**
@@ -194,7 +204,7 @@ const jobs = {
             "chmod 666 ./data/tiles.mbtiles",
             "\cp /temp/data/tiles.mbtiles " + shareLocation + "/data/tiles.mbtiles"
         ];
-        return metaJob;
+        return metaJob.run();
     },
 
     /**
