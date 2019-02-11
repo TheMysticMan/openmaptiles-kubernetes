@@ -17,7 +17,8 @@ events.on("exec", (e, p) => {
             POSTGRES_PORT: "5432",
             MIN_ZOOM: "0",
             MAX_ZOOM: "14",
-            BBOX: "5.103149,51.884968,7.163086,52.407446"
+            //BBOX: "5.103149,51.884968,7.163086,52.407446" // Netherlands/Gelderland
+            BBOX: "3.136597,50.729502,7.256470,53.657661" // Netherlands
         };
         // importAll(e, p, env).catch((e) => {
         //     console.log(e);
@@ -95,7 +96,7 @@ const jobs = {
             "mkdir " + buildLocation,
             "mkdir " + cacheLocation,
             "ln -s " + shareLocation + " /tileset",
-            "curl http://download.geofabrik.de/europe/netherlands/gelderland-latest.osm.pbf -o " + dataLocation + "/gelderland.osm.pbf",
+            "curl http://download.geofabrik.de/europe/netherlands-latest.osm.pbf -o " + dataLocation + "/netherlands.osm.pbf",
             "make"
         ];
         return makeJob;
