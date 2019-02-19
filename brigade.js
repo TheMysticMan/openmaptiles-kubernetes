@@ -100,7 +100,7 @@ const jobs = {
         makeJob.storage.enabled = true;
         makeJob.tasks = [
             "cd " + shareLocation,
-            "git clone https://github.com/openmaptiles/openmaptiles.git ./",
+            "git clone https://github.com/TheMysticMan/openmaptiles.git ./",
             "mkdir " + dataLocation,
             "mkdir " + buildLocation,
             "mkdir " + cacheLocation,
@@ -116,15 +116,19 @@ const jobs = {
      */
     importCommon: (e, p, env) => {
         var neJob = new Job("import-natural-earth", "openmaptiles/import-natural-earth:1.4");
+        neJob.timeout = 21600000;
         neJob.env = env;
 
         var wJob = new Job("import-water", "openmaptiles/import-water:0.6");
+        wJob.timeout = 21600000;
         wJob.env = env;
 
         var llJob = new Job("import-lakelines", "openmaptiles/import-lakelines:1.0");
+        llJob.timeout = 21600000;
         llJob.env = env;
 
         var ibJob = new Job("import-border", "openmaptiles/import-osmborder:0.4");
+        ibJob.timeout = 21600000;
         ibJob.env = env;
 
         var cGroup = new Group([neJob, wJob, llJob, ibJob]);
