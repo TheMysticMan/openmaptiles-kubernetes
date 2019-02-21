@@ -57,26 +57,26 @@ const generateTiles = (e, p, env) => {
 
 const importAll = (e, p, env) => {
     return jobs.setupTools(e, p, env).then(() => {
-        return jobs.forcedCleanSql(e, p, env).then(() => {
-            return jobs.importCommon(e, p, env).then(() => {
-                return jobs.importOsm(e, p, env).then(() => {
-                    return jobs.importWikiData(e, p, env).then(() => {
-                        return jobs.importSql(e, p, env).then(() => {
-                            return jobs.generateVectorTiles(e, p, env).then(() => {
+        //return jobs.forcedCleanSql(e, p, env).then(() => {
+            //return jobs.importCommon(e, p, env).then(() => {
+                //return jobs.importOsm(e, p, env).then(() => {
+                    //return jobs.importWikiData(e, p, env).then(() => {
+                        //return jobs.importSql(e, p, env).then(() => {
+                            //return jobs.generateVectorTiles(e, p, env).then(() => {
                                 return jobs.generateTextVectorTiles(e, p, env).then(() => {
                                     return jobs.addMetadata(e, p, env).then(() => {
                                         return jobs.copyMbTiles(e, p, env).then(() => {
-                                            return jobs.deployNewVersion(e, p, env)
+                                            //return jobs.deployNewVersion(e, p, env)
                                         });
                                     })
                                 });
                             })
-                        })
-                    })
-                })
-            })
-        })
-    });
+                        //})
+                    //})
+                //})
+            //})
+        //})
+    //});
 }
 
 const jobs = {
@@ -220,9 +220,9 @@ const jobs = {
             "mkdir -p /temp",
             "cp " + dataLocation + " /temp -r",
             "cd /temp",
-            "generate-metadata ./data/tiles.mbtiles",
-            "chmod 666 ./data/tiles.mbtiles",
-            "\cp /temp/data/tiles.mbtiles " + shareLocation + "/data/tiles.mbtiles",
+            //"generate-metadata ./data/tiles.mbtiles",
+            //"chmod 666 ./data/tiles.mbtiles",
+            //"\cp /temp/data/tiles.mbtiles " + shareLocation + "/data/tiles.mbtiles",
             "generate-metadata ./data/texttiles.mbtiles",
             "chmod 666 ./data/texttiles.mbtiles",
             "\cp /temp/data/texttiles.mbtiles " + shareLocation + "/data/texttiles.mbtiles"
