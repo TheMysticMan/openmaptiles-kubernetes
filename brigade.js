@@ -200,13 +200,13 @@ const jobs = {
     * Generate vector tiles
     */
     generateTextVectorTiles: (e, p, env) => {
-        var gvJob = new Job("generate-vectortiles", "openmaptiles/generate-vectortiles:0.1.1");
+        var gvJob = new Job("generate-text-vectortiles", "openmaptiles/generate-vectortiles:0.1.1");
         gvJob.env = env;
         gvJob.timeout = 21600000;
         gvJob.storage.enabled = true;
         gvJob.env.EXPORT_DIR = '/tmp';
         gvJob.env.SOURCE_PROJECT_DIR = buildLocation + "/openmaptiles_text.tm2source"
-        gvJob.tasks = ['/usr/src/app/export-local.sh', 'cp /tmp/tiles.mbtiles ' + dataLocation + 'texttiles.mbtiles']
+        gvJob.tasks = ['/usr/src/app/export-local.sh', 'cp /tmp/tiles.mbtiles ' + dataLocation + '/texttiles.mbtiles']
         return gvJob.run();
     },
 
@@ -222,7 +222,10 @@ const jobs = {
             "cd /temp",
             "generate-metadata ./data/tiles.mbtiles",
             "chmod 666 ./data/tiles.mbtiles",
-            "\cp /temp/data/tiles.mbtiles " + shareLocation + "/data/tiles.mbtiles"
+            "\cp /temp/data/tiles.mbtiles " + shareLocation + "/data/tiles.mbtiles",
+            "generate-metadata ./data/texttiles.mbtiles",
+            "chmod 666 ./data/texttiles.mbtiles",
+            "\cp /temp/data/texttiles.mbtiles " + shareLocation + "/data/texttiles.mbtiles"
         ];
         return metaJob.run();
     },
