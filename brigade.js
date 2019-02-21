@@ -63,11 +63,13 @@ const importAll = (e, p, env) => {
                     return jobs.importWikiData(e, p, env).then(() => {
                         return jobs.importSql(e, p, env).then(() => {
                             return jobs.generateVectorTiles(e, p, env).then(() => {
-                                return jobs.addMetadata(e, p, env).then(() => {
-                                    return jobs.copyMbTiles(e, p, env).then(() => {
-                                        return jobs.deployNewVersion(e, p, env)
-                                    });
-                                })
+                                return jobs.generateTextVectorTiles(e, p, env).then(() => {
+                                    return jobs.addMetadata(e, p, env).then(() => {
+                                        return jobs.copyMbTiles(e, p, env).then(() => {
+                                            return jobs.deployNewVersion(e, p, env)
+                                        });
+                                    })
+                                });
                             })
                         })
                     })
@@ -191,6 +193,20 @@ const jobs = {
         gvJob.env.EXPORT_DIR = '/tmp';
         gvJob.env.SOURCE_PROJECT_DIR = buildLocation + "/openmaptiles.tm2source"
         gvJob.tasks = ['/usr/src/app/export-local.sh', 'cp /tmp/tiles.mbtiles ' + dataLocation]
+        return gvJob.run();
+    },
+
+    /**
+    * Generate vector tiles
+    */
+    generateTextVectorTiles: (e, p, env) => {
+        var gvJob = new Job("generate-vectortiles", "openmaptiles/generate-vectortiles:0.1.1");
+        gvJob.env = env;
+        gvJob.timeout = 21600000;
+        gvJob.storage.enabled = true;
+        gvJob.env.EXPORT_DIR = '/tmp';
+        gvJob.env.SOURCE_PROJECT_DIR = buildLocation + "/openmaptiles_text.tm2source"
+        gvJob.tasks = ['/usr/src/app/export-local.sh', 'cp /tmp/tiles.mbtiles ' + dataLocation + 'texttiles.mbtiles']
         return gvJob.run();
     },
 
