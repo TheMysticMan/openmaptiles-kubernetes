@@ -10,7 +10,7 @@ spec:
     image: alpine
     command: ["cp"]
     # "-f", "/data/worker/data/tiles.mbtiles", "/data/tileserver/", "&&", "cp", 
-    args: ["-f", "/data/worker/data/textiles.mbtiles", "/data/tileserver/",]
+    args: ["-f", "/data/worker/data/texttiles.mbtiles", "/data/tileserver/",]
     volumeMounts:
     - name: copy-tiles-$BUILD_ID-nfs-volume
       mountPath: /data/worker
