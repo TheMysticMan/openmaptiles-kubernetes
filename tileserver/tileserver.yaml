@@ -3,29 +3,46 @@ kind: Deployment
 metadata:
   name: tileserver-$VERSION-deployment
   labels:
-    app: tileserver
+    app: tileserver-$VERSION
     version: "$VERSION"
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: tileserver
+      app: tileserver-$VERSION
       version: "$VERSION"
   template:
     metadata:
       labels:
-        app: tileserver
+        app: tileserver-$VERSION
         version: "$VERSION"
     spec:
+      initContainers:
+      - name: clone-config-$VERSION
+        image: alpine/git
+        command: ["git", "clone", "https://github.com/TheMysticMan/tileserver-gl-config.git", "/data"]
+        volumeMounts:
+        - name: data-volume
+          mountPath: /data
+      - name: mbtiles-copy-$VERSION
+        image: busybox
+        command: ["/bin/sh", "-c", "cp -f /nfs-share/tiles.mbtiles /data/ && cp -f /nfs-share/texttiles.mbtiles /data/"]
+        volumeMounts:
+        - name: data-volume
+          mountPath: /data
+        - name: tileserver-$VERSION-volume
+          mountPath: /nfs-share
       containers:
       - name: tileserver-$VERSION
-        image: edolimburg/tileserver-gl-nfs:0.0.2
+        image: klokantech/tileserver-gl
         ports:
         - containerPort: 80
         volumeMounts:
-        - name: tileserver-$VERSION-volume
-          mountPath: /nfs-share
+        - name: data-volume
+          mountPath: /data
       volumes:
       - name: tileserver-$VERSION-volume
         persistentVolumeClaim:
           claimName: nfs
+      - name: data-volume
+        emptyDir: {}
